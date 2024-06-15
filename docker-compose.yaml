@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - '${APP_PORT}:${APP_PORT}'
+    depends_on:
+      - mongodb
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    networks:
+      - app-context
+  mongodb:
+    image: mongo
+    ports:
+      - '${MONGODB_PORT}:${MONGODB_PORT}'
+    environment:      
+      - 'MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}'
+      - 'MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}'
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-context
+
+networks:
+  app-context:
+    driver: bridge
+
+volumes:
+  mongodb_data:

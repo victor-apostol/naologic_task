@@ -1,0 +1,1 @@
+Clone the repo -> create the .env based on env_example file -> docker-compose build -> docker-compose up
