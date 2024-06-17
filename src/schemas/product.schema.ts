@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types,  } from 'mongoose';
 import { Vendor } from './vendor.schema';
 import { Manufacturer } from './manufacturer.schema';
-import { ProductData, ProductStatus } from 'src/types/product.types';
+import { ProductData, ProductInfo, ProductStatus } from 'src/types/product.types';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -19,61 +19,92 @@ export class Product {
   @Prop()
   fullData: string | null;
 
-  @Prop({ 
-    name: { type: String, required: true },
-    type: { type: String, required: true },
-    shortDescription: { type: String, required: true },
-    description: { type: String, required: true },
-    vendorId: { type: String, required: true },
-    manufacturerId: { type: String, required: true },
-    storefrontPriceVisibility: { type: String, required: true },
-    options: { type: String, required: true },
-    variants: {
-      id: { type: String, required: true },
-      available: { type: Boolean, required: true },
-      attributes: {
-        packaging: { type: String, required: true },
-        description: { type: String, required: true },
-      },
-      cost: { type: Number, required: true },
-      currency: { type: String, required: true },
-      depth: { type: String },
-      description: { type: String, required: true },
-      dimensionUom: { type: String },
-      height: { type: String },
-      width: { type: String },
-      manufacturerItemCode: { type: String, required: true },
-      manufacturerItemId: { type: String, required: true },
-      packaging: { type: String, required: true },
-      price: { type: Number, required: true },
-      volume: { type: Number },
-      volumeUom: { type: String },
-      weight: { type: Number },
-      weightUom: { type: String },
-      optionName: { type: String, required: true },
-      optionsPath: { type: String, required: true },
-      optionsItemsPath: { type: String, required: true },
-      active: { type: Boolean, required: true },
-      itemCode: { type: String, required: true },
-      images: [
+  @Prop({
+    name: { type: String },
+    type: { type: String },
+    shortDescription: { type: String },
+    description: { type: String },
+    vendorId: { type: Types.ObjectId, ref: Vendor },
+    manufacturerId: { type: Types.ObjectId, ref: Manufacturer },
+    storefrontPriceVisibility: { type: String },
+    options: { 
+      type: [
         {
-          fileName: { type: String, required: true },
-          cdnLink: { type: String, required: false },
-          i: { type: Number, required: true },
-          alt: { type: String, required: false }
-        }
-      ]
+          id: { type: String },
+          name: { type: String, default: 'packaging' },
+          dataField: { type: String , nullable: true},
+          values: [
+              {
+                id: { type: String },
+                name: { type: String, nullable: true },
+                value: { type: String, nullable: true }
+              }
+          ]
+      },
+      {
+        id: { type: String },
+        name: { type: String },
+        dataField: { type: String , nullable: true},
+          values: [
+              {
+                id: { type: String },
+                name: { type: String, default: 'description' },
+                value: { type: String, nullable: true }
+              }
+          ]
+      }
+      ] 
+    },
+    variants: {
+      type: [{
+        id: { type: String },
+        available: { type: Boolean },
+        attributes: {
+          packaging: { type: String },
+          description: { type: String },
+        },
+        cost: { type: Number },
+        currency: { type: String },
+        depth: { type: String },
+        description: { type: String },
+        dimensionUom: { type: String },
+        height: { type: String },
+        width: { type: String },
+        manufacturerItemCode: { type: String },
+        manufacturerItemId: { type: String },
+        packaging: { type: String },
+        price: { type: Number },
+        volume: { type: Number },
+        volumeUom: { type: String },
+        weight: { type: Number },
+        weightUom: { type: String },
+        optionName: { type: String },
+        optionsPath: { type: String },
+        optionsItemsPath: { type: String },
+        active: { type: Boolean },
+        itemCode: { type: String },
+        sku: { type: String },
+        images: [
+          {
+            fileName: { type: String },
+            cdnLink: { type: String }, 
+            i: { type: Number },
+            alt: { type: String }
+          }
+        ]
+      }],
+      default: [],
     },
     images: [{
-        fileName: { type: String, required: true },
-        cdnLink: { type: String, required: false },
-        i: { type: Number, required: true },
-        alt: { type: String, required: false }
+      fileName: { type: String },
+      cdnLink: { type: String, nullable: true },
+      i: { type: Number, default: 0 },
+      alt: { type: String, nullable: true }
     }],
-    availability: { type: String, required: true },
-    isFragile: { type: Boolean, required: true },
-    published: { type: String, required: true },
-    isTaxable: { type: Boolean, required: true },
+    availability: { type: String },
+    isFragile: { type: Boolean, default: true },
+    published: { type: String, default: false },
+    isTaxable: { type: Boolean, default: true },
   })
   data: ProductData;
 
@@ -98,9 +129,22 @@ export class Product {
   @Prop({ required: true })
   status: ProductStatus;
 
-  @Prop({ })
-  info: string;
+  @Prop({ 
+    type: {
+      createdBy: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now() },
+      updatedBy: { type: String, required: true, default: '' },
+      updatedAt: { type: Date },
+      deletedBy: { type: String, nullable: true, default: null },
+      deletedAt: { type: String, nullable: true, default: null },
+      dataSource: { type: String, required: true },
+      companyStatus: { type: String, required: true },
+      transactionId: { type: String, required: true },
+      skipEvent: { type: Boolean, required: true, default: false },
+      userRequestId: { type: String }  
+    },
+  })
+  info: ProductInfo;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
-

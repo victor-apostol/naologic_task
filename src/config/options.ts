@@ -17,7 +17,8 @@ export const configValidationSchema = Joi.object({
 
   MONGODB_URI: Joi.string().required(),
   MONGODB_PORT: Joi.number().required(),
-
   MONGO_INITDB_ROOT_USERNAME: Joi.string().required(),
-  MONGO_INITDB_ROOT_PASSWORD: Joi.string().required()
+  MONGO_INITDB_ROOT_PASSWORD: Joi.string().required(),
+  
+  CSV_FILE_NAME: Joi.string().required()
 });

@@ -15,9 +15,9 @@ export type ProductData = {
   isTaxable: boolean;
 }
 
-type ProductVariant = {
+export type ProductVariant = {
   id: string;
-  availablea: boolean;
+  available: boolean;
   attributes: {
     packaging: string;
     description: string;
@@ -41,12 +41,45 @@ type ProductVariant = {
   optionsPath: string;
   optionsItemsPath: string;
   active: boolean;
+  sku: string;
+  images: Array<ProductImage>;
   itemCode: string; 
 }
 
-export type Currencies = 'USD' | 'EUR';
+export type ProductInfo = {
+  createdBy: string;
+  createdAt: string;
+  updatedBy: string;
+  updatedAt: string;
+  deletedBy: string;
+  deletedAt: string;
+  dataSource: string | null;
+  companyStatus: CompanyStatus;
+  transactionId: string;
+  skipEvent: boolean;
+  userRequestId: string;
+}
 
-export type ProductOptions = {
+export type Currencies = 'USD' | 'EUR';
+export type CompanyStatus = 'active' | 'inactive';
+
+type ProductOptions = [
+  ProductOptionsDescription,
+  ProductOptionsPackaging
+]
+
+type ProductOptionsDescription =  {
+  id: string;
+  name: string;
+  dataField: string | null;
+  values: {
+    id: string;
+    name: string;
+    values: string;
+  }
+}
+
+type ProductOptionsPackaging = {
   id: string;
   name: string;
   dataField: string | null;
@@ -58,7 +91,7 @@ export type ProductOptions = {
 }
 
 export type ProductImage = {
-  filename: string;
+  fileName: string;
   cdnLink: string | null;
   i: number;
   alt: string | null;

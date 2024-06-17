@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { configValidationSchema, mongooseAsyncOptions } from './config/options';
 import { Product, ProductSchema } from './schemas/product.schema';
 import { LoggerModule } from 'nestjs-pino';
+import { Manufacturer, ManufacturerSchema } from './schemas/manufacturer.schema';
+import { Vendor, VendorSchema } from './schemas/vendor.schema';
 
 @Module({
   imports: [
@@ -21,7 +23,11 @@ import { LoggerModule } from 'nestjs-pino';
     }),
     ScheduleModule.forRoot(),
     MongooseModule.forRootAsync(mongooseAsyncOptions),
-    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }])
+    MongooseModule.forFeature([
+      { name: Product.name, schema: ProductSchema },
+      { name: Manufacturer.name, schema: ManufacturerSchema },
+      { name: Vendor.name, schema: VendorSchema }
+    ])
   ],
   providers: [TaskService],
 })
