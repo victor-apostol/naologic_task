@@ -40,9 +40,9 @@ export class TaskService {
       const payload = await this.processCsvFile(csvFilePath);
       payload.sort((first, second) => Number(first.ProductID) - Number(second.ProductID));
 
-      for (let i = 0; i < payload.length; i++) {
-        const targetProductId = payload[i].ProductID;
-        const productPayload = payload[i];
+      for (let productIndex = 0; productIndex < payload.length; productIndex++) {
+        const targetProductId = payload[productIndex].ProductID;
+        const productPayload = payload[productIndex];
         
         // should do separte validation upon csv reading not here
         if (productPayload.ProductID === null || productPayload.ManufacturerID === null || (isNaN(Number(productPayload.UnitPrice)))) {
@@ -55,12 +55,12 @@ export class TaskService {
         const vendor = await this.ensureEntityExists(this.vendorModel, { vendorId: productPayload.ManufacturerID });
 
         if (!dbProduct) {
-          dbProduct = this.generateMongodbProduct(productPayload, targetProductId, vendor._id.toString(), manufacturer._id.toString());
+          dbProduct = this.generateProduct(productPayload, targetProductId, vendor._id.toString(), manufacturer._id.toString());
         };
 
-        for (let x = i; x < payload.length; x++) {
-          if (payload[x].ProductID !== targetProductId) {
-            i = x;
+        for (let variantIndex = productIndex + 1; variantIndex < payload.length - 1; variantIndex++) {
+          if (payload[variantIndex].ProductID !== targetProductId || variantIndex === payload.length - 1) {
+            productIndex = variantIndex;
             break;
           }
 
@@ -86,7 +86,7 @@ export class TaskService {
           dynamicTyping: true,
           skipEmptyLines: true,
         }))
-        // if CSV file is extremly large and server doesnt have enough RAM, could work with data in streams to no load memory
+        // if CSV file is extremly large and server doesnt have enough RAM, could work with data in streams to not load memory
         .on('data', (row) => {
           const CsvPayloadDTO: CsvPayloadDto = Object.assign(new CsvPayloadDto(), row);
           products.push(CsvPayloadDTO);
@@ -128,7 +128,7 @@ export class TaskService {
     return [...Array(numberOfChars)].map(() => (Math.random().toString(36)[2])).join('');
   }
 
-  private generateMongodbProduct(productPayload: CsvPayloadDto, targetProductId: string, vendorId: string, manufacturerId: string): ProductDocument {
+  private generateProduct(productPayload: CsvPayloadDto, targetProductId: string, vendorId: string, manufacturerId: string): ProductDocument {
     return new this.productModel({
       docId: nano.nanoid(), 
       productId: targetProductId,
